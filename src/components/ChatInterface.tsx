@@ -20,13 +20,8 @@ const NEUROMORPHIC_RESPONSES = [
   "Deep reasoning mode engaged. The recursive self-model is reflecting on your query through multiple abstraction layers — integrating symbolic reasoning with sub-symbolic pattern completion.",
 ];
 
-let responseIndex = 0;
-
-function getNextResponse(): string {
-  const response = NEUROMORPHIC_RESPONSES[responseIndex % NEUROMORPHIC_RESPONSES.length];
-  responseIndex++;
-  return response;
-}
+const MIN_RESPONSE_DELAY_MS = 1200;
+const RANDOM_DELAY_RANGE_MS = 800;
 
 function generateId(): string {
   return `msg_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
@@ -41,8 +36,15 @@ export default function ChatInterface() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const responseIndexRef = useRef(0);
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const getNextResponse = useCallback((): string => {
+    const response = NEUROMORPHIC_RESPONSES[responseIndexRef.current % NEUROMORPHIC_RESPONSES.length];
+    responseIndexRef.current++;
+    return response;
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -70,7 +72,7 @@ export default function ChatInterface() {
     }
 
     try {
-      await new Promise<void>((resolve) => setTimeout(resolve, 1200 + Math.random() * 800));
+      await new Promise<void>((resolve) => setTimeout(resolve, MIN_RESPONSE_DELAY_MS + Math.random() * RANDOM_DELAY_RANGE_MS));
 
       const assistantMessage: Message = {
         id: generateId(),
@@ -85,7 +87,7 @@ export default function ChatInterface() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading]);
+  }, [input, isLoading, getNextResponse]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
