@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-[#0a0a0f] text-slate-200 antialiased">
         {children}
-        <script src="https://www-infinity4.github.io/Mint-For-Infinity/infinity-wallet-menu.js" defer></script>
+        <Script src="https://www-infinity4.github.io/Mint-For-Infinity/infinity-wallet-menu.js" strategy="afterInteractive" />
       </body>
     </html>
   );
